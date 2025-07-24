@@ -1,0 +1,123 @@
+<style>
+  h1, h2, h3 { font-family: sans-serif; }
+  pre code {
+    display: block;
+    background-color: #f5f5f5;
+    color: #222;
+    padding: 1rem;
+    border-radius: 6px;
+    overflow-x: auto;
+    font-family: Consolas, monospace;
+  }
+</style>
+
+<h1 id="securite">Chapitre 3 – Sécurisation des paiements & Webhooks</h1>
+
+<p>
+Chaque paiement Stripe déclenche une cascade d'événements asynchrones : confirmation, remboursement, échec, litige.  
+Ces événements sont transmis à votre backend via des <strong>webhooks</strong>.  
+Mais sans protection, n’importe qui pourrait simuler un webhook Stripe et accéder à des actions sensibles.
+</p>
+
+---
+
+<h2 id="risques">1. Menaces courantes sur les webhooks</h2>
+
+<ul>
+  <li>🚨 Requêtes falsifiées : simulation d’un paiement par un tiers</li>
+  <li>🚨 Replays : envoi plusieurs fois d’un ancien webhook</li>
+  <li>🚨 Modification du corps JSON pendant le transport</li>
+  <li>🚨 Injections et falsifications d’authentification</li>
+</ul>
+
+---
+
+<h2 id="signature">2. Vérification de la signature Stripe</h2>
+
+<p>
+Stripe signe chaque webhook avec un secret partagé que vous seul connaissez.  
+Vous devez :
+</p>
+
+<ol>
+  <li>Extraire l'en-tête <code>Stripe-Signature</code></li>
+  <li>Récupérer le timestamp et le hash HMAC</li>
+  <li>Recalculer la signature avec votre secret</li>
+  <li>Comparer les deux avec un <strong>secure compare</strong></li>
+</ol>
+
+<pre><code class="language-python">
+import hmac, hashlib
+
+payload = raw_request_body
+secret = os.getenv("STRIPE_WEBHOOK_SECRET")
+timestamp = headers["Stripe-Signature"].split(",")[0].split("=")[1]
+signature = headers["Stripe-Signature"].split(",")[1].split("=")[1]
+
+signed_payload = f"{timestamp}.{payload}"
+expected = hmac.new(
+    secret.encode(), signed_payload.encode(), hashlib.sha256
+).hexdigest()
+
+if not secure_compare(signature, expected):
+    abort(403)
+</code></pre>
+
+---
+
+<h2 id="replay">3. Protection contre les replays</h2>
+
+<p>
+Un attaquant peut capturer une requête Stripe et la rejouer plus tard.  
+Pour éviter cela, Stripe ajoute un <strong>timestamp</strong> dans la signature. Vous devez :
+</p>
+
+<ul>
+  <li>Rejeter toute signature dont le timestamp a plus de 5 minutes</li>
+  <li>Stocker les IDs d’événements déjà traités (idempotence webhook)</li>
+</ul>
+
+---
+
+<h2 id="bonnespratiques">4. Bonnes pratiques supplémentaires</h2>
+
+<ul>
+  <li>Utiliser HTTPS obligatoirement</li>
+  <li>Limiter les IP ou régions autorisées si possible</li>
+  <li>Ne jamais faire confiance à un champ comme <code>event["type"]</code> sans signature</li>
+  <li>Consommer les événements avec <strong>ACK explicites</strong></li>
+</ul>
+
+---
+
+<h2 id="conclusion">5. Conclusion</h2>
+
+<blockquote>
+<strong>Les webhooks sont l’un des vecteurs d’attaque les plus négligés.</strong>  
+Stripe vous fournit tous les outils pour sécuriser leur traitement. À vous de les implémenter strictement.
+</blockquote>
+
+<p>
+Dans tout système financier, l’intégrité des événements déclenchés doit être garantie cryptographiquement.  
+Cela s’applique aussi bien à Stripe qu’à toute autre API de paiement.
+</p>
+
+---
+
+<h2 id="exercice">🎓 Exercice</h2>
+
+<p>
+1. Crée un endpoint <code>POST /webhook</code> avec les éléments suivants :
+</p>
+
+<ul>
+  <li>Lecture brute du corps de la requête</li>
+  <li>Extraction de l’en-tête <code>Stripe-Signature</code></li>
+  <li>Vérification HMAC avec timestamp</li>
+  <li>Refus des requêtes expirées ou falsifiées</li>
+  <li>Journalisation dans un fichier sécurisé</li>
+</ul>
+
+<p>
+Optionnel : simule une attaque (replay, faux payload, modification de type).
+</p>
