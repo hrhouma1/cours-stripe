@@ -1,0 +1,128 @@
+<style>
+  h1, h2, h3 { font-family: sans-serif; }
+  pre code {
+    display: block;
+    background-color: #f5f5f5;
+    color: #222;
+    padding: 1rem;
+    border-radius: 6px;
+    overflow-x: auto;
+    font-family: Consolas, monospace;
+  }
+</style>
+
+<h1 id="acid">Chapitre 2 – Transactions ACID & Rollbacks</h1>
+
+<p>
+Lorsqu’un utilisateur effectue un paiement, plusieurs opérations critiques doivent se produire : débit bancaire, création de commande, génération de facture, envoi d’e-mail.  
+Si l’une d’elles échoue, <strong>l’ensemble du processus doit être annulé proprement</strong>.  
+C’est l’objectif des transactions <strong>ACID</strong>.
+</p>
+
+---
+
+<h2 id="definition">1. Qu’est-ce qu’une transaction ACID ?</h2>
+
+<p>
+Une transaction est une séquence d’opérations sur une base de données, qui respecte les 4 propriétés suivantes :
+</p>
+
+<ul>
+  <li><strong>A – Atomicité</strong> : tout ou rien</li>
+  <li><strong>C – Cohérence</strong> : les règles métier sont toujours valides</li>
+  <li><strong>I – Isolation</strong> : les transactions ne se perturbent pas entre elles</li>
+  <li><strong>D – Durabilité</strong> : une fois validée, elle est permanente</li>
+</ul>
+
+<p>
+Ces garanties permettent d’exécuter un paiement en toute sécurité, même si un bug ou une coupure survient à mi-parcours.
+</p>
+
+---
+
+<h2 id="rollback">2. Exemple avec rollback</h2>
+
+<p>
+Imaginons une API de paiement avec trois étapes :
+</p>
+
+<ol>
+  <li>Débiter la carte</li>
+  <li>Créer une commande</li>
+  <li>Envoyer une facture</li>
+</ol>
+
+<p>Voici une implémentation typique (simplifiée en pseudocode) :</p>
+
+<pre><code class="language-python">
+with db.transaction():
+    charge_user_card()
+    create_order_record()
+    send_invoice_email()
+</code></pre>
+
+<p>
+Si l'envoi de l’e-mail échoue, la transaction est annulée. Aucune commande ne reste en base, aucun débit n’est visible.
+</p>
+
+---
+
+<h2 id="stripe">3. ACID chez Stripe</h2>
+
+<p>
+Stripe ne stocke pas directement vos transactions dans une base SQL, mais il applique les principes ACID :
+</p>
+
+<ul>
+  <li>Si un paiement est créé, tous les effets associés sont garantis ou annulés</li>
+  <li>En cas de double appel, seul le premier est appliqué (voir idempotence)</li>
+  <li>Stripe ne confirme jamais un succès tant que le processus n'est pas complet</li>
+</ul>
+
+<p>
+Ce modèle garantit la <strong>cohérence forte</strong> de bout en bout, même dans des systèmes distribués.
+</p>
+
+---
+
+<h2 id="bonus">4. Bonus : annuler proprement</h2>
+
+<p>
+Si une étape échoue (ex. paiement accepté mais commande non enregistrée), Stripe recommande de :
+</p>
+
+<ul>
+  <li>Utiliser un <code>rollback()</code> transactionnel dans votre base</li>
+  <li>Consigner l’erreur dans un <code>event log</code> pour reprise manuelle</li>
+  <li>Notifier l’utilisateur si une incohérence potentielle est détectée</li>
+</ul>
+
+---
+
+<h2 id="conclusion">5. Conclusion</h2>
+
+<blockquote>
+<strong>Une architecture sérieuse ne peut se permettre d’échecs partiels.</strong>  
+Les transactions ACID vous protègent contre les effets de bord non contrôlés.
+</blockquote>
+
+<p>
+Stripe applique ces principes dans tous ses services critiques.  
+En tant que développeur, vous devez les reproduire dans vos propres systèmes clients et backend.
+</p>
+
+---
+
+<h2 id="exercice">🎓 Exercice</h2>
+
+<p>
+1. Implémente une API de paiement avec :
+</p>
+
+<ul>
+  <li>Une base PostgreSQL ou SQLite</li>
+  <li>Une route <code>POST /pay</code></li>
+  <li>3 actions dans une transaction : écriture, validation, notification</li>
+  <li>Un bloc <code>try/except</code> avec <code>rollback()</code> en cas d’erreur</li>
+  <li>Une réponse claire : succès ou échec global</li>
+</ul>
