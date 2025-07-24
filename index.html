@@ -1,105 +1,64 @@
-<style>
-  body {
-    font-family: 'Segoe UI', sans-serif;
-    background-color: #ffffff;
-    color: #202020;
-    max-width: 900px;
-    margin: auto;
-    padding: 40px 24px;
-    line-height: 1.8;
-  }
-
-  h1 {
-    font-size: 28px;
-    margin-top: 48px;
-    margin-bottom: 20px;
-    color: #202060;
-  }
-
-  h2 {
-    font-size: 22px;
-    margin-top: 36px;
-    margin-bottom: 16px;
-    color: #303080;
-  }
-
-  ul {
-    padding-left: 24px;
-    margin-bottom: 24px;
-  }
-
-  li {
-    margin-bottom: 8px;
-  }
-
-  pre code {
-    display: block;
-    background-color: #f5f5f5;
-    color: #222;
-    padding: 1rem;
-    border-radius: 6px;
-    overflow-x: auto;
-    font-family: Consolas, monospace;
-    font-size: 14px;
-    margin-top: 12px;
-    margin-bottom: 24px;
-  }
-
-  blockquote {
-    border-left: 4px solid #999;
-    padding-left: 16px;
-    color: #555;
-    margin: 24px 0;
-    font-style: italic;
-    background-color: #f9f9f9;
-  }
-
-  a {
-    color: #0044cc;
-    text-decoration: none;
-  }
-
-  a:hover {
-    text-decoration: underline;
-  }
-</style>
-
-
-<h1 id="introduction">1. Présentation du cours — Construire des systèmes de paiement robustes avec Stripe</h1>
-
-<p>
-Ce cours vous guide étape par étape dans la conception d'API de paiement **fiables**, **idempotentes** et **résilientes**, inspirées des meilleures pratiques de Stripe.  
-Vous apprendrez à prévenir les erreurs critiques telles que les paiements en double, à garantir la cohérence des transactions, et à gérer les pannes réseau avec élégance.
-</p>
-
-<p>
-Chaque chapitre est autonome, consultable indépendamment, et comporte un exercice pratique à la fin.
-</p>
-
----
-
-<h1 id="plan">2. Table des matières</h1>
-
-<ul>
-  <li><a href="chapitre-1-idempotence.html">Chapitre 1 – L’idempotence</a></li>
-  <li><a href="chapitre-2-acid.html">Chapitre 2 – Transactions ACID & Rollbacks</a></li>
-  <li><a href="chapitre-3-securite.html">Chapitre 3 – Sécurisation des paiements & Webhooks</a></li>
-  <li><a href="chapitre-4-architecture.html">Chapitre 4 – Résilience, gestion des erreurs & retries</a></li>
-  <li><a href="chapitre-5-exemples.html">Chapitre 5 – Implémentation en Node.js et FastAPI</a></li>
-  <li><a href="chapitre-6-tests.html">Chapitre 6 – Tests de charge & validation de robustesse</a></li>
-</ul>
-
----
-
-<h1 id="objectifs">3. Objectifs pédagogiques</h1>
-
-<ul>
-  <li>Éviter les paiements en double grâce à l’idempotence</li>
-  <li>Garantir la cohérence des données avec des transactions ACID</li>
-  <li>Créer des APIs résilientes aux erreurs réseau et aux pannes</li>
-  <li>Protéger les webhooks Stripe avec signature et revalidation</li>
-  <li>Mettre en place une architecture capable d’absorber les pics de charge</li>
-</ul>
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Cours Stripe – Page d'accueil</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
 
 
 
+
+
+
+
+
+
+  
+  <h1 id="introduction">1. Présentation du cours — Construire des systèmes de paiement robustes avec Stripe</h1>
+
+  <p>
+    Ce cours vous guide étape par étape dans la conception d'API de paiement <strong>fiables</strong>, <strong>idempotentes</strong> et <strong>résilientes</strong>, inspirées des meilleures pratiques de Stripe.<br>
+    Vous apprendrez à prévenir les erreurs critiques telles que les paiements en double, à garantir la cohérence des transactions, et à gérer les pannes réseau avec élégance.
+  </p>
+
+  <p>
+    Chaque chapitre est autonome, consultable indépendamment, et comporte un exercice pratique à la fin.
+  </p>
+
+  <hr>
+
+  <h1 id="plan">2. Table des matières</h1>
+
+  <ul>
+    <li><a href="chapitre-1-idempotence.html">Chapitre 1 – L’idempotence</a></li>
+    <li><a href="chapitre-2-acid.html">Chapitre 2 – Transactions ACID &amp; Rollbacks</a></li>
+    <li><a href="chapitre-3-securite.html">Chapitre 3 – Sécurisation des paiements &amp; Webhooks</a></li>
+    <li><a href="chapitre-4-architecture.html">Chapitre 4 – Résilience, gestion des erreurs &amp; retries</a></li>
+    <li><a href="chapitre-5-exemples.html">Chapitre 5 – Implémentation en Node.js et FastAPI</a></li>
+    <li><a href="chapitre-6-tests.html">Chapitre 6 – Tests de charge &amp; validation de robustesse</a></li>
+  </ul>
+
+  <hr>
+
+  <h1 id="objectifs">3. Objectifs pédagogiques</h1>
+
+  <ul>
+    <li>Éviter les paiements en double grâce à l’idempotence</li>
+    <li>Garantir la cohérence des données avec des transactions ACID</li>
+    <li>Créer des APIs résilientes aux erreurs réseau et aux pannes</li>
+    <li>Protéger les webhooks Stripe avec signature et revalidation</li>
+    <li>Mettre en place une architecture capable d’absorber les pics de charge</li>
+  </ul>
+
+
+
+
+
+
+
+
+  
+</body>
+</html>
