@@ -1,0 +1,105 @@
+<style>
+  h1, h2, h3 { font-family: sans-serif; }
+  pre code {
+    display: block;
+    background-color: #f5f5f5;
+    color: #222;
+    padding: 1rem;
+    border-radius: 6px;
+    overflow-x: auto;
+    font-family: Consolas, monospace;
+  }
+</style>
+
+<h1 id="idempotence">Chapitre 1 – L’idempotence</h1>
+
+<p>
+Stripe traite des millions de paiements chaque jour. Un clic de trop, un réseau instable ou un bug client peut générer plusieurs requêtes identiques.  
+Sans précaution, cela entraîne des paiements en double, des expéditions répétées, et une perte de confiance.  
+Pour éviter cela, Stripe s’appuie sur un principe fondamental : <strong>l’idempotence</strong>.
+</p>
+
+---
+
+<h2 id="definition">1. Définition de l’idempotence</h2>
+
+<p>
+Une opération est dite <strong>idempotente</strong> si elle produit le même effet, qu’elle soit exécutée une ou plusieurs fois avec les mêmes paramètres.
+</p>
+
+<pre><code class="language-http">
+POST /charge
+Idempotency-Key: 123e4567-e89b-12d3-a456-426614174000
+
+{ "amount": 1000, "currency": "usd" }
+</code></pre>
+
+<p>
+Dans cet exemple, même si cette requête est renvoyée 3 fois, Stripe ne créera <strong>qu’un seul paiement</strong>.
+</p>
+
+---
+
+<h2 id="pourquoi">2. Pourquoi l’idempotence est-elle critique ?</h2>
+
+<ul>
+  <li>✅ Empêche les <strong>paiements en double</strong></li>
+  <li>✅ Évite les erreurs d’infrastructure distribuée</li>
+  <li>✅ Protège contre les clics répétés de l’utilisateur</li>
+  <li>✅ Rend les APIs robustes face aux retries automatiques</li>
+</ul>
+
+---
+
+<h2 id="mecanisme">3. Comment Stripe gère-t-il l’idempotence ?</h2>
+
+<ol>
+  <li><strong>Clé d’idempotence</strong> générée côté client (UUID)</li>
+  <li><strong>Transmission via en-tête HTTP</strong></li>
+  <li><strong>Stockage de l’effet</strong> côté serveur, lié à la clé</li>
+  <li><strong>Rejet silencieux</strong> si la même clé revient</li>
+  <li><strong>Clé invalide si les données changent</strong></li>
+  <li><strong>Expiration après 24h</strong> pour nettoyage</li>
+</ol>
+
+---
+
+<h2 id="grace">4. Exponential backoff & jitter</h2>
+
+<p>
+En cas d’échec réseau, Stripe recommande :
+</p>
+
+<pre><code class="language-pseudo">
+retry after: random_between(2^n, 2^(n+1)) + jitter
+</code></pre>
+
+<p>
+Ce mécanisme évite la surcharge du serveur lors d’une panne partielle (thundering herd).
+</p>
+
+---
+
+<h2 id="conclusion">5. Conclusion</h2>
+
+<blockquote>
+<strong>Une API de paiement sans idempotence est dangereuse.</strong>  
+Stripe en a fait une exigence absolue dans toutes ses intégrations critiques.
+</blockquote>
+
+<p>
+Chaque point de terminaison sensible (création de paiement, de remboursement, etc.) est conçu pour être idempotent.  
+Cela garantit une expérience fluide, même en cas de panne ou d’instabilité réseau.
+</p>
+
+---
+
+<h2 id="exercice">🎓 Exercice</h2>
+
+<p>
+1. Crée une API simple avec `POST /checkout` en Node.js ou FastAPI  
+2. Ajoute un en-tête `Idempotency-Key`  
+3. Garde en mémoire les clés utilisées  
+4. Si une même clé revient, retourne le même résultat sans retraitement  
+5. Ajoute un rollback transactionnel si une erreur survient
+</p>
